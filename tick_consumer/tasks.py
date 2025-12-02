@@ -32,7 +32,7 @@ def get_broker(broker_id):
         }
 
     except Broker.DoesNotExist:
-        raise {'error': f'Broker with id {broker_id} not found'} 
+        raise Exception(f'Broker with id {broker_id} not found') 
     
 
 # Accepts list of tick dictionaries
