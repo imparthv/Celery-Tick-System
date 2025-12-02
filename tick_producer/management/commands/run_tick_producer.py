@@ -1,3 +1,5 @@
+import django
+
 import json
 import time
 import websocket
@@ -7,6 +9,8 @@ from django.core.management.base import BaseCommand
 from celery import Celery
 from tick_consumer.tasks import get_broker, consume_tick
 
+# Below is not to be written in production
+django.setup() # For writing into sqlite db
 
 # BINANCE WebSocket URL
 BINANCE_WS_URL = 'wss://fstream.binance.com/stream?streams='
@@ -56,7 +60,7 @@ class Command(BaseCommand):
                     on_close=self.on_close
                 )
 
-                ws.run_forever
+                ws.run_forever()
 
             except Exception as e:
                 self.stdout.write(self.style.ERROR(f"Websocket crashed:{e}"))
