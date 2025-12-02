@@ -4,11 +4,11 @@ from .models import Broker, Script, Ticks
 
 @admin.register(Broker)
 class BrokerAdmin(admin.ModelAdmin):
-    list_display =('id','type', 'name', 'created_at', 'updated_at')
-    search_fields = ('type', 'name')
-    list_filter = ('type')
-    ordering = ('id')
-    readonly_fields = ('created_at', 'updated_at')
+    list_display = ("id", "type", "name", "created_at", "updated_at")
+    search_fields = ("type", "name")
+    list_filter = ("type",)
+    ordering = ("id",)
+    readonly_fields = ("created_at", "updated_at")
 
 @admin.register(Script)
 class ScriptAdmin(admin.ModelAdmin):
