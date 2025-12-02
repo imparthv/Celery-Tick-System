@@ -41,6 +41,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # Adding apps
+    'tick_cosumer',
+    'tick_producer',
 ]
 
 MIDDLEWARE = [
