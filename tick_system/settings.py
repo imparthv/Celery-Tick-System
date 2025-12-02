@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # Adding apps
-    'tick_cosumer',
+    'tick_consumer',
     'tick_producer',
 ]
 
