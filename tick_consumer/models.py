@@ -7,7 +7,7 @@ from django.utils import timezone
 class Broker(models.Model):
     type = models.CharField(max_length=50)
     name = models.CharField(max_length=100)
-    api_config = models.JSONField(default=dict)
+    api_config = models.JSONField(default=dict, blank=True, null=True)
 
 
     created_at = models.DateTimeField(auto_now_add=True)
