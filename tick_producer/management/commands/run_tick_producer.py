@@ -13,7 +13,7 @@ from tick_consumer.tasks import get_broker, consume_tick
 django.setup() # For writing into sqlite db
 
 # BINANCE WebSocket URL
-BINANCE_WS_URL = 'wss://fstream.binance.com/stream?streams='
+BINANCE_WS_URL = ' wss://stream.binance.com:9443/stream?streams='
 
 
 class Command(BaseCommand):
