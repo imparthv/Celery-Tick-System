@@ -94,9 +94,9 @@ WSGI_APPLICATION = 'tick_system.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'tick_engine',
-        'USER': 'root',
-        'PASSWORD': os.getenv('DB_MYSQL_PASSWORD'),
+        'NAME': os.getenv('MYSQL_DATABASE'),
+        'USER': os.getenv('MYSQL_USER'),
+        'PASSWORD': os.getenv('Aspire0406$'),
         'HOST': '127.0.0.1',
         'PORT': '3300',
     }
