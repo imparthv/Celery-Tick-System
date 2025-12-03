@@ -96,7 +96,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'tick_engine',
         'USER': 'root',
-        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'PASSWORD': os.getenv('DB_MYSQL_PASSWORD'),
         'HOST': '127.0.0.1',
         'PORT': '3300',
     }
