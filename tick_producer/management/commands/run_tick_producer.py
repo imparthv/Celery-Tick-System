@@ -4,7 +4,7 @@ import json
 import time
 import websocket
 
-from datetime import datetime
+from datetime import datetime, timezone
 from django.core.management.base import BaseCommand
 from celery import Celery
 from tick_consumer.tasks import get_broker, consume_tick
@@ -90,7 +90,7 @@ class Command(BaseCommand):
                 "script_id": script_map[symbol],
                 "value": float(price),
                 "volume": float(volume) if volume else None,
-                "received_at": datetime.utcfromtimestamp(ts / 1000).isoformat()
+                "received_at": datetime.fromtimestamp(ts/1000, tz=timezone).isoformat()
             }
 
             # Sends ticks to Celery
