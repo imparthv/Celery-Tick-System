@@ -4,6 +4,11 @@ from .models import Broker, Ticks
 from django.utils.dateparse import parse_datetime
 from django.db import transaction
 
+import logging
+
+# Creating a logger
+logger = logging.getLogger(__name__)
+
 
 # Returns broker details and all the scripts related to broker
 # The scripts are list of dictionaries
@@ -31,7 +36,8 @@ def get_broker(broker_id):
         }
 
     except Broker.DoesNotExist:
-        raise Exception(f'Broker with id {broker_id} not found') 
+        # Logging error instead of raising
+        logger.error(f'Broker with id {broker_id} not found') 
     
 
 # Accepts list of tick dictionaries
@@ -50,7 +56,7 @@ def consume_tick(tick_data_list):
                 )
                 )
         except Exception as e:
-            print(f"Error parsing tick: {tick} - {e}")
+            logger.error(f"Error parsing tick: {tick} - {e}")
 
     if ticks_to_create:
         try:
@@ -62,5 +68,5 @@ def consume_tick(tick_data_list):
             print(f"Inserted {len(ticks_to_create)} ticks")
 
         except Exception as e:
-            print(f"Error inserting tick: {e}")
+            logger.error(f"Error inserting tick: {e}")
 
