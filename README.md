@@ -79,6 +79,17 @@ An applicatio utilising django, celery, mysql and redis to consume live binance 
 
     - Using admin panel:
         Head to admin panel and open the ticks table. Refresh to check regular tick entries 
+    
+- Additional/Optional docker commands (Helpful):
+    - To the stop the services in an event of unexpected output
+    docker compose down
+
+    - To remove orphans/services which may be existing after using updated yaml file
+    docker compose down --remove-orphans
+
+    - Removing all unused containers:
+    docker container prune
+
 
     
 
