@@ -1,7 +1,6 @@
 from celery import shared_task
-from django.core.serializers import serialize
 
-from .models import Broker, Script,Ticks
+from .models import Broker, Ticks
 from django.utils.dateparse import parse_datetime
 from django.db import transaction
 
