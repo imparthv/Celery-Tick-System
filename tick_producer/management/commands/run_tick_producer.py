@@ -56,7 +56,7 @@ class Command(BaseCommand):
             try:
                 ws = websocket.WebSocketApp(
                     ws_url,
-                    on_message=lambda ws, msg: self.on_message(ws, msg, scripts),
+                    on_message=self.script_wrapper(scripts),
                     on_error=self.on_error,
                     on_close=self.on_close
                 )
@@ -68,7 +68,11 @@ class Command(BaseCommand):
                 time.sleep(5)
                 self.stdout.write(self.style.WARNING("Reconnecting......"))
 
-
+    # Message wrapper
+    def script_wrapper(self, scripts):
+        def _handler(ws, msg):
+            self.on_message(ws, msg, scripts)
+        return _handler
 
     def on_message(self, ws, message, scripts):
         try:
