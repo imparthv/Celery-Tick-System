@@ -42,33 +42,20 @@ def get_broker(broker_id):
 
 # Accepts list of tick dictionaries
 @shared_task
-def consume_tick(tick_data_list):
-    ticks_to_create = []
-    for tick in tick_data_list:
-        try:
-            received_at = parse_datetime(tick["received_at"])
-            ticks_to_create.append(
-                Ticks(
-                    script_id = tick["script_id"],
-                    tick_value = tick["value"],
-                    volume = tick["volume"],
-                    received_at_producer = received_at
-                )
-                )
-        except Exception as e:
-            # Log the error instead of raising
-            logger.error(f"Error parsing tick: {tick} - {e}")
+def consume_tick(tick_data):
+    try:
+        received_at = parse_datetime(tick_data["received_at"])
+        tick_instance = Ticks(
+                script_id = tick_data["script_id"],
+                tick_value = tick_data["value"],
+                volume = tick_data["volume"],
+                received_at_producer = received_at
+        )
 
-    if ticks_to_create:
-        try:
-            # Ensuring atomic transactions: Either the all changes are made upon success 
-            # Or the changes are rolled back upon failure
-            with transaction.atomic():
-                # Ensuring buld inserts into tick table
-                Ticks.objects.bulk_create(ticks_to_create)
-            print(f"Inserted {len(ticks_to_create)} ticks")
 
-        except Exception as e:
-            # Log the error instead of raising
-            logger.error(f"Error inserting tick: {e}")
+        tick_instance.save()
+        print(f"Inserted a tick")
 
+    except Exception as e:
+        # Log the error instead of raising
+        logger.error(f"Error with tick: {tick_data} - {e}")
