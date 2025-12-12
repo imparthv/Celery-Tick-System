@@ -33,7 +33,8 @@ class Command(BaseCommand):
         broker_data = fetch_broker_data(broker_id)
 
         if "error" in broker_data:
-            logger.error(f'Received error {broker_data['error']}')
+            # self.stdout.write(self.style.ERROR(broker_data["error"]))
+            logger.error(f"{broker_data['error']}")
            
         
         # Fetching scripts
@@ -41,12 +42,10 @@ class Command(BaseCommand):
 
         # Building url
         ws_url = build_WS_URL(scripts)
-        self.stdout.write(self.style.SUCCESS(f"Connecting to Binance URL:{ws_url}"))
+        logger.info(f"Connecting to Binance URL:{ws_url}")
 
         # Initiating websocket connection
         initiate_websocket_connection(ws_url, scripts)
-        handle_binance_message
-
 
 # Fetching broker scripts
 def fetch_broker_data(broker_id):
@@ -97,31 +96,23 @@ def handle_binance_message(ws, message, script_map):
         symbol = data.get("s", "").lower()
         price = data.get("p")
         volume = data.get("q")
-        ts = data.get("T")
-
-        if not symbol or not price:
-            return
-
+        ts = int(data.get("T"))
         
         if symbol not in script_map:
-            return
-        
-        tick = {
+            logger.error(f'Stream symbol {symbol} unavailble in map ')
+
+        # Sends ticks to Celery
+        consume_tick.delay({
             "script_id": script_map[symbol],
             "value": float(price),
             "volume": float(volume) if volume else None,
-            "received_at": datetime.fromtimestamp(ts/1000, tz=timezone.utc).isoformat()
-        }
-
-
-        # Sends ticks to Celery
-        consume_tick.delay(tick)
+            "received_at": ts
+        })
 
 
     except Exception as e:
         # Log the error instead of raising
         logger.error(f"Error parsing message: {e}")
-
 
 def on_error(ws, error):
     print(f"WebSocket Error: {error}")
