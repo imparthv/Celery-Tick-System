@@ -2,35 +2,51 @@ services:
   mysql:
     image: mysql:8
     container_name: mysql
-    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
     ports:
       - "3307:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
     volumes:
       - mysql_data:/var/lib/mysql
 
-  redis:
-    image: redis:latest
-    container_name: redis
-    restart: always
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: rabbitmq
     ports:
-      - "6379:6379"
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      -  ./.rabbitmq/data/:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "status"]
+      interval: 10s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
   web:
     build: .
     container_name: tick_web
-    # Adding 120 second delay to prevent conflicts with late mysql server starts
-    command: bash -c "sleep 120 && python manage.py runserver 0.0.0.0:8000"
+    command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/app
     ports:
       - "8000:8000"
     depends_on:
-      - mysql
-      - redis
-    restart: always
+      mysql:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
 
   celery_worker:
     build: .
@@ -39,10 +55,12 @@ services:
     volumes:
       - .:/app
     depends_on:
-      - web
-      - redis
-      - mysql
-    restart: always
+      rabbitmq:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+    environment:
+      CELERY_BROKER_URL: amqp://guest:guest@rabbitmq:5672//
 
   tick_producer:
     build: .
@@ -51,9 +69,12 @@ services:
     volumes:
       - .:/app
     depends_on:
-      - celery_worker
-      - redis
-      - mysql
+      rabbitmq:
+        condition: service_healthy
+      celery_worker:
+        condition: service_started
+      mysql:
+        condition: service_healthy
 
 volumes:
   mysql_data:
