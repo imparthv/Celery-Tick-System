@@ -149,11 +149,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Celery Configuration Options
 CELERY_TIMEZONE = "Asia/Kolkata"
 
-# Celery / Redis settings
-# CELERY_BROKER_URL = "redis://localhost:6379/0"
-
-# Use below when using redis image in docker
-CELERY_BROKER_URL = "redis://redis:6379/0"
+# Replacing redis with rabbitmq as message broker
+CELERY_BROKER_URL = "amqp://guest:guest@rabbitmq:5672//"
 CELERY_RESULT_BACKEND = "django-db"
 
 
