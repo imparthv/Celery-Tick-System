@@ -2,16 +2,17 @@ from celery import shared_task
 
 from .models import Broker, Ticks
 from datetime import datetime, timezone
+import time
 import logging
 
 # Creating a logger
 logger = logging.getLogger(__name__)
 
-try: 
-    from line_profiler import profile # type: ignore
-except ImportError:
-    def profile(func):
-        return func
+# try: 
+#     from line_profiler import profile # type: ignore
+# except ImportError:
+#     def profile(func):
+#         return func
 
 
 # Returns broker details and all the scripts related to broker
@@ -46,7 +47,7 @@ def get_broker(broker_id):
 
 # Accepts a single tick
 @shared_task
-@profile
+# @profile
 def consume_tick(tick_data):
     try:
         # received_at = parse_datetime(tick_data["received_at"])
@@ -57,9 +58,10 @@ def consume_tick(tick_data):
                 received_at_producer = datetime.fromtimestamp(tick_data["received_at"]/1000, tz=timezone.utc).isoformat()
         )
 
-
+        start_time = time.perf_counter()
         tick_instance.save()
-        logger.info(f"Inserted a tick")
+        elasped_time = (time.perf_counter() -  start_time)
+        logger.info(f"Inserted a tick in {elasped_time * 1000} ms")
         # profile.print_stats()
 
     except Exception as e:
