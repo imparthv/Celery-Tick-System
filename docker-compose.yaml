@@ -51,7 +51,7 @@ services:
   celery_worker:
     build: .
     container_name: celery_worker
-    command: celery -A tick_system worker -P eventlet --loglevel=info
+    command: kernprof -l -v -m celery -A tick_system worker -P eventlet --loglevel=info --concurrency=8
     volumes:
       - .:/app
     depends_on:
