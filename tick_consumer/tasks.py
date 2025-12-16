@@ -2,14 +2,13 @@ from celery import shared_task
 
 from .models import Broker, Ticks
 from datetime import datetime, timezone
-
 import logging
 
 # Creating a logger
 logger = logging.getLogger(__name__)
 
 try: 
-    from line_profiler import profile
+    from line_profiler import profile # type: ignore
 except ImportError:
     def profile(func):
         return func
@@ -61,6 +60,7 @@ def consume_tick(tick_data):
 
         tick_instance.save()
         logger.info(f"Inserted a tick")
+        # profile.print_stats()
 
     except Exception as e:
         # Log the error instead of raising
