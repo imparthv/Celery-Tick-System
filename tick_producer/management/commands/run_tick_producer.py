@@ -96,14 +96,12 @@ def initiate_websocket_connection(ws_url, scripts):
 
 def handle_binance_message(ws, message, script_map):
     global tick_count, last_logged_tick_time
+    start_time = time.time()
     try:
         # JSON formatted string.Requires dict conversion
         data = json.loads(message)["data"]
 
         symbol = data["s"].lower()
-        price = data["p"]
-        volume = data["q"]
-        ts = int(data["T"])
         
         if symbol not in script_map:
             logger.error(f'Stream symbol {symbol} unavailble in map ')
@@ -111,18 +109,19 @@ def handle_binance_message(ws, message, script_map):
         # Sends ticks to Celery
         consume_tick.delay({
             "script_id": script_map[symbol],
-            "value": price,
-            "volume": volume if volume else None,
-            "received_at": ts
+            "value": data["p"],
+            "volume": data["q"] if data["q"] else None,
+            "received_at": data["T"]
         })
+        current_time = time.time()
+        tick_processing_time = current_time - start_time
 
         tick_count +=1 
-        current_time = time.time()
         time_diff = current_time - last_logged_tick_time
 
-        if  time_diff >= 1:
-            ticks_per_second = tick_count / time_diff
-            print(f"Ticks production rate: {ticks_per_second:.2f} ticks/sec| Total ticks: {tick_count} ticks")
+        if  time_diff >= 1.0:
+            ticks_per_second = time_diff/tick_count
+            print(f"Ticks production rate: {ticks_per_second:.2f} ticks/sec| Processing time: {tick_processing_time * 1000} ms")
             tick_count = 0
             last_logged_tick_time = current_time
 
