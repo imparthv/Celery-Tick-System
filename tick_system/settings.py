@@ -99,6 +99,7 @@ DATABASES = {
         'PASSWORD': os.getenv('MYSQL_ROOT_PASSWORD'),
         'HOST': 'mysql', # Comment when you need to check it on local
         'PORT': '3306',
+        'CONN_MAX_AGE': 60, # Ensuring connnection stays alive
     }
 }
 
